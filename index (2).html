@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#edf1f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b1418" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Trade Journal">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230e7c86'/%3E%3Cpath d='M6 22l7-8 5 5 8-11' fill='none' stroke='white' stroke-width='3'/%3E%3C/svg%3E">
+<title>Trade Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light dark;--bg:#edf1f3;--panel:#f8fafb;--ink:#0f1f2a;--mute:#566a76;--line:#cdd7dd;--none:#e1e8ec;--acc:#0e7c86;--onacc:#fff;--win:#17803f;--loss:#c2371f}
+@media(prefers-color-scheme:dark){:root{--bg:#0b1418;--panel:#111d23;--ink:#e3ecef;--mute:#8aa0ab;--line:#24363f;--none:#1a2a32;--acc:#3cc4cf;--onacc:#06181b;--win:#4cd480;--loss:#ff7a62}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "IBM Plex Sans",system-ui,sans-serif;font-variant-numeric:tabular-nums}
+h1,h2,h3,.big{font-family:"Bricolage Grotesque","IBM Plex Sans",system-ui,sans-serif;letter-spacing:-.01em}
+h1,h2,h3{margin:0}
+h1{font-size:clamp(28px,5vw,40px);line-height:1.05}
+h2{font-size:18px;margin-bottom:10px}
+h3{font-size:15px;margin:20px 0 8px;color:var(--acc)}
+.wrap{max-width:960px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-right)) 0 max(16px,env(safe-area-inset-left))}
+header{padding:28px 0 18px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:7px 14px;border-radius:5px}
+button:hover{border-color:var(--acc)}
+.pri{background:var(--acc);border-color:var(--acc);color:var(--onacc);font-weight:500}
+.dng{color:var(--loss)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.win{color:var(--win)}.loss{color:var(--loss)}
+section{margin-top:30px}
+.money{display:grid;grid-template-columns:1.3fr 1fr;border-top:2px solid var(--ink);border-bottom:1px solid var(--line)}
+.money>div{padding:14px 14px 14px 0;display:grid;gap:2px;align-content:start}
+.money span{color:var(--mute);font-size:13px}
+.big{font-size:28px;font-weight:700;line-height:1.1}
+.big i{font-style:normal}
+#bal{font:700 34px/1.1 "Bricolage Grotesque",system-ui,sans-serif;background:none;border:0;border-bottom:1px dashed var(--mute);border-radius:0;padding:0 0 2px;width:100%;color:var(--ink)}
+@media(max-width:640px){.money{grid-template-columns:1fr}}
+.pnl{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.pnl>div{display:grid;gap:1px;align-content:start;padding:8px 12px 10px;border:1px solid var(--line);border-radius:5px;background:var(--panel)}
+.pnl .lb{display:flex;align-items:center;min-height:30px}
+.pnl span{color:var(--mute);font-size:13px}
+.pnl b{font:700 21px/1.2 "Bricolage Grotesque",system-ui,sans-serif}
+.pnl small{font-size:13px}
+.pk{display:flex}
+.pk button{border-radius:0;margin-left:-1px;padding:2px 10px;font-size:13px;min-height:30px}
+.pk button:first-child{border-radius:5px 0 0 5px;margin:0}
+.pk button:last-child{border-radius:0 5px 5px 0}
+.pk .on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+@media(max-width:640px){.pnl{grid-template-columns:1fr 1fr}.pnl .lf{order:2}.pnl .pd{order:3;grid-column:1/-1}}
+#fab{position:fixed;right:16px;bottom:max(16px,env(safe-area-inset-bottom));z-index:5;border-radius:999px;padding:12px 20px;box-shadow:0 6px 20px rgba(0,0,0,.28)}
+#cp{position:fixed;right:16px;bottom:calc(max(16px,env(safe-area-inset-bottom)) + 56px);width:min(340px,calc(100vw - 32px));max-height:calc(100vh - 110px);max-height:calc(100dvh - 110px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px;box-shadow:0 10px 36px rgba(0,0,0,.3);z-index:5}
+#cp[hidden]{display:none}
+#ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;cursor:grab;touch-action:none;user-select:none}
+#ch button{padding:3px 10px}
+#dsw{padding:6px 9px;line-height:0}
+.calc{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.out{border-top:1px solid var(--line);margin-top:14px;padding-top:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.out div{display:grid;gap:2px}.out span{color:var(--mute);font-size:13px}
+.out b{font:700 22px/1.2 "Bricolage Grotesque",system-ui,sans-serif}
+.two{display:grid;grid-template-columns:minmax(180px,230px) 1fr;gap:32px;align-items:start}
+@media(max-width:640px){.two{grid-template-columns:1fr}}
+.donut svg{width:100%;max-width:210px;display:block;margin:0 auto}
+.leg{display:grid;gap:4px;margin-top:10px;font-size:14px}
+.leg i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px}
+.mh{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.mh h2{margin:0;flex:1}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal em{font-style:normal;color:var(--mute);font-size:12px;text-align:center}
+.day{min-height:48px;display:grid;align-content:space-between;text-align:left;padding:4px 6px;border-radius:4px;border:1px solid var(--line);background:var(--none);font-size:12px;color:var(--mute)}
+.day.g{background:color-mix(in srgb,var(--win) 24%,var(--panel));border-color:var(--win);color:var(--ink)}
+.day.r{background:color-mix(in srgb,var(--loss) 24%,var(--panel));border-color:var(--loss);color:var(--ink)}
+.day.z{outline:2px solid var(--mute);outline-offset:-2px}
+.day.sel{box-shadow:0 0 0 2px var(--ink)}
+.day b{font-weight:500;font-size:13px}.day.g b{color:var(--win)}.day.r b{color:var(--loss)}
+#dayinfo{margin-top:10px;color:var(--mute);font-size:14px}
+#dayinfo button{margin:4px 6px 0 0;padding:3px 10px}
+.empty{color:var(--mute);padding:18px 6px}
+.scroll{overflow-x:auto;border-top:2px solid var(--ink)}
+table{border-collapse:collapse;width:100%;min-width:720px}
+th{text-align:left;font-weight:500;color:var(--mute);font-size:13px;padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+tbody tr{cursor:pointer}tbody tr:hover{background:var(--panel)}
+td.why{white-space:normal;max-width:240px;color:var(--mute);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+small{color:var(--mute)}
+footer{color:var(--mute);font-size:13px;padding:20px 0 88px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+footer p{margin:0 12px 0 0;flex:1;min-width:220px}
+dialog{border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);padding:0;width:min(740px,96vw);max-height:92vh}
+dialog::backdrop{background:rgba(5,12,16,.6)}
+form{padding:20px}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(138px,1fr));gap:10px}
+label{display:grid;gap:3px;font-size:13px;color:var(--mute)}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:7px 8px;width:100%}
+textarea{resize:vertical;min-height:64px}
+.wide{grid-column:1/-1}
+.acts{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap}
+.acts .dng{margin-right:auto}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+input,select,textarea{min-width:0}
+.acts{position:sticky;bottom:0;background:var(--panel);border-top:1px solid var(--line);padding:12px 0 max(12px,env(safe-area-inset-bottom));margin-bottom:-20px}
+@media(pointer:coarse){input,select,textarea{font-size:16px}}
+@media(max-width:640px){
+ button{min-height:40px}
+ header{padding-top:20px}
+ dialog{width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;margin:0;border:0;border-radius:0}
+ #cp{top:12px;bottom:auto;left:12px;right:12px;width:auto;max-height:calc(100dvh - 24px)}
+ #fab{right:12px}
+ table,tbody{display:block;min-width:0}
+ thead{display:none}
+ tbody tr{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;padding:12px 2px;border-bottom:1px solid var(--line)}
+ td{display:block;border:0;padding:0;white-space:normal}
+ td[data-l]::before{content:attr(data-l);display:block;color:var(--mute);font-size:12px}
+ td.why{display:block;max-width:none;-webkit-line-clamp:unset;overflow:visible;grid-column:1/-1}
+ td.empty{grid-column:1/-1}
+}
+.sl{display:grid;gap:2px}
+.sl input[type=range]{padding:0;border:0;background:none;accent-color:var(--acc);height:30px}
+.tk{display:flex;justify-content:space-between}
+.tk button{padding:4px 10px;font-size:13px}
+.xau{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;border-top:1px solid var(--line);padding-top:10px}
+.xau span{color:var(--mute);font-size:13px}
+.xau b{font:700 24px/1.2 "Bricolage Grotesque",system-ui,sans-serif}
+label small{font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Trade Journal</h1>
+  <button class="pri" id="new">New trade</button>
+</header>
+
+<div class="money">
+  <div><span>My balance</span><input id="bal" type="number" step="any" inputmode="decimal" aria-label="Balance"></div>
+  <div><span>Average win / loss</span><b class="big" id="fr"></b><small id="fn"></small></div>
+</div>
+<div class="pnl" id="pnl"></div>
+
+<section class="two">
+  <div class="donut"><div class="mh"><h2 id="dt">Win rate</h2><button id="dsw" aria-label="Switch between this month and all time" title="Switch between this month and all time"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4L3 8l4 4"/><path d="M3 8h14"/><path d="M17 20l4-4-4-4"/><path d="M21 16H7"/></svg></button></div><div id="donut"></div></div>
+  <div>
+    <div class="mh"><h2 id="mt"></h2><button id="prev" aria-label="Previous month">&lt;</button><button id="next" aria-label="Next month">&gt;</button></div>
+    <div class="cal" id="cal"></div>
+    <div id="dayinfo"></div>
+  </div>
+</section>
+
+<section>
+  <h2>Trade log</h2>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Date</th><th>Pair</th><th>Side</th><th>Entry</th><th>SL</th><th>TP</th><th>Exit</th><th>P&amp;L</th><th>Reason</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  <p>Saved in this browser only. Export a backup now and then. A ~ before a P&amp;L means it is estimated from your entry, exit, margin and leverage. P&amp;L is shown after fees.</p>
+  <button id="exp">Export</button><button id="imp">Import</button>
+  <input type="file" id="file" accept=".json,application/json" hidden>
+</footer>
+</div>
+
+<button class="pri" id="fab">Calculator</button>
+<aside id="cp" hidden aria-label="Trade calculator">
+  <div id="ch"><strong>Calculator</strong><button id="cx" aria-label="Close calculator">Close</button></div>
+  <div class="calc">
+    <label>Pair<select id="cP"></select></label>
+    <label>Side<select id="cD"><option value="long">Long</option><option value="short">Short</option></select></label>
+    <label>Entry price<input type="number" step="any" id="cE" inputmode="decimal"></label>
+    <label>ATR 14<input type="number" step="any" id="cA" inputmode="decimal"></label>
+    <label>ATR multiplier<input type="number" step="any" id="cM" inputmode="decimal"></label>
+    <label>Reward target<input type="number" step="any" id="cR" inputmode="decimal" placeholder="2"></label>
+    <label>Leverage<input type="number" step="any" id="cL" inputmode="decimal"></label>
+    <label>Initial margin (USDT)<input type="number" step="any" id="cG" inputmode="decimal"></label>
+    <div class="sl wide">
+      <input type="range" id="cS" min="0" max="100" step="1" value="0" aria-label="Initial margin as a percent of your balance">
+      <div class="tk"><button type="button" data-v="0">0%</button><button type="button" data-v="25">25%</button><button type="button" data-v="50">50%</button><button type="button" data-v="75">75%</button><button type="button" data-v="100">100%</button></div>
+      <small id="cSp"></small>
+    </div>
+    <div class="xau wide"><span>Your position</span><b id="oQ">-</b><small id="oN"></small></div>
+  </div>
+  <div class="out">
+    <div><span>Stop loss</span><b id="oSL">-</b></div>
+    <div><span>Take profit</span><b id="oTP">-</b></div>
+    <div><span>I risk</span><b id="oRisk" class="loss">-</b></div>
+    <div><span>I could win</span><b id="oWin" class="win">-</b></div>
+    <div style="align-content:end"><button id="use">Log this trade</button></div>
+  </div>
+</aside>
+
+<dialog id="dlg">
+<form id="f" method="dialog">
+  <h2 id="ttl">New trade</h2>
+  <div class="g">
+    <label>Date<input type="date" id="date" required></label>
+    <label>Pair or asset<select id="pair" required></select></label>
+    <label>Timeframe<select id="tf"><option>M5</option><option>M15</option><option>M30</option><option>H1</option><option>H4</option><option>D1</option></select></label>
+    <label>Side<select id="dir"><option value="long">Long</option><option value="short">Short</option></select></label>
+  </div>
+  <h3>Entry, stop and target</h3>
+  <div class="g">
+    <label>Entry price<input type="number" step="any" id="entry" required></label>
+    <label>ATR 14 value<input type="number" step="any" id="atr"></label>
+    <label>ATR multiplier<input type="number" step="any" id="mult"></label>
+    <label>Reward target<input type="number" step="any" id="rr"></label>
+    <label>Stop loss<input type="number" step="any" id="sl" required></label>
+    <label>Take profit<input type="number" step="any" id="tp"></label>
+    <label>Balance<input type="number" step="any" id="acct"></label>
+    <label>Initial margin (USDT)<input type="number" step="any" id="margin"></label>
+    <label>Leverage<input type="number" step="any" id="lev"></label>
+  </div>
+  <h3>Why I entered</h3>
+  <div class="g">
+    <label class="wide">Chart screenshot link<input type="url" id="link" placeholder="https://www.tradingview.com/x/..."></label>
+    <label class="wide">Why this trade, why now?<textarea id="reason" required></textarea></label>
+  </div>
+  <h3>After the exit</h3>
+  <div class="g">
+    <label>Exit price<input type="number" step="any" id="exit"></label>
+    <label>Profit or loss before fees<input type="number" step="any" id="pnl" placeholder="Empty = estimate"></label>
+    <label>Fees<input type="number" step="any" id="fee" placeholder="Entry + exit total"></label>
+    <label>Exit reason<select id="xr"><option value="">Still open</option><option>Hit TP</option><option>Hit SL</option></select></label>
+    <label>Followed my rules?<select id="follow"><option value="">Not set</option><option>Yes</option><option>No</option></select></label>
+    <label>Emotion<select id="emo"><option value="">Not set</option><option>Calm</option><option>Confident</option><option>FOMO</option><option>Fear</option><option>Revenge</option><option>Bored</option></select></label>
+    <label class="wide">Lesson from this trade<textarea id="lesson"></textarea></label>
+  </div>
+  <div class="acts">
+    <button type="button" class="dng" id="del">Delete trade</button>
+    <button type="button" id="cancel">Cancel</button>
+    <button class="pri" type="submit">Save trade</button>
+  </div>
+</form>
+</dialog>
+
+<script>
+const KEY = "tradeJournal.v1", $ = id => document.getElementById(id);
+const N = ["entry","atr","mult","rr","sl","tp","acct","margin","lev","exit","pnl","fee"];
+const FAVS = ["XAUUSDT", "ZECUSDT", "BTCUSDT"]; // Binance perpetuals. Edit this list to change your favorites.
+const S = ["date","pair","tf","dir","reason","link","xr","follow","emo","lesson"];
+let trades = [], cfg = {start:1000, risk:1, mult:1.5, rr:2, pr:30}, cur = null, sel = null, calcRes = {};
+let mon = new Date(); mon.setDate(1); mon.setHours(0, 0, 0, 0);
+try { const d = JSON.parse(localStorage.getItem(KEY)); if (d) { trades = d.trades || []; Object.assign(cfg, d.cfg); } } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify({trades, cfg})); } catch (e) { alert("Could not save to browser storage. Export a backup instead."); } };
+const p = x => +x.toPrecision(7);
+const pad = n => String(n).padStart(2, "0");
+const ymd = d => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const num = id => { const v = $(id).value; return v === "" || isNaN(+v) ? null : +v; };
+const rOf = t => {
+  if (t.exit == null || t.entry == null || t.sl == null) return null;
+  const r = Math.abs(t.entry - t.sl);
+  return r ? (t.dir === "long" ? t.exit - t.entry : t.entry - t.exit) / r : null;
+};
+const grossOf = t => {
+  if (t.pnl != null) return t.pnl;
+  if (t.exit != null && t.entry > 0 && t.margin != null) return (t.dir === "long" ? t.exit - t.entry : t.entry - t.exit) / t.entry * t.margin * (t.lev > 0 ? t.lev : 1);
+  const r = rOf(t); return r != null && t.acct != null && t.risk != null ? r * t.acct * t.risk / 100 : null; /* older trades */
+};
+const pnlOf = t => { const g = grossOf(t); return g == null ? null : g - (t.fee || 0); };
+const fx = v => Math.abs(v).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const money = v => v == null ? "n/a" : (v > 0 ? "+" : v < 0 ? "-" : "") + "$" + fx(v);
+const short = v => (v > 0 ? "+" : v < 0 ? "-" : "") + Math.abs(Math.round(v));
+const cls = v => v == null ? "" : v > 0 ? "win" : v < 0 ? "loss" : "";
+const sum = a => a.reduce((x, y) => x + y, 0);
+const known = a => a.map(pnlOf).filter(x => x != null);
+const balance = () => cfg.start + sum(known(trades));
+
+/* calculator: margin and leverage in, position and risk out */
+const base = s => s.replace(/(USDT|USDC|BUSD|USD)$/, "") || s;
+function calc() {
+  const e = num("cE"), a = num("cA"), m = num("cM"), rr = num("cR"), l = num("cL"), mg = num("cG"), long = $("cD").value === "long";
+  const lev = l > 0 ? l : 1, pair = $("cP").value, bal = balance();
+  cfg.mult = m ?? cfg.mult; cfg.rr = rr ?? cfg.rr; cfg.lev = l ?? cfg.lev;
+  if (pair && pair !== "__other") cfg.cp = pair;
+  const ok = e != null && a != null && m != null && a * m > 0, d = ok ? a * m : 0;
+  const sl = ok ? p(long ? e - d : e + d) : null, tp = ok && rr != null ? p(long ? e + rr * d : e - rr * d) : null;
+  const notional = mg != null ? mg * lev : null, qty = notional != null && e > 0 ? notional / e : null;
+  const risk = qty != null && ok ? qty * d : null, riskPct = risk != null && bal > 0 ? risk / bal * 100 : null;
+  const pct = mg != null && bal > 0 ? mg / bal * 100 : 0;
+  if (document.activeElement !== $("cS")) $("cS").value = Math.max(0, Math.min(100, Math.round(pct)));
+  $("cSp").textContent = mg == null ? "Drag the slider or type your margin" : pct > 100 ? "More than your balance" : Math.round(pct) + "% of your balance";
+  $("oQ").textContent = qty != null ? qty.toLocaleString(undefined, {maximumFractionDigits: 6}) + " " + base(pair) : "-";
+  $("oN").textContent = notional != null ? "= " + fx(notional) + " USDT position at " + lev + "x" : "";
+  $("oSL").textContent = sl ?? "-"; $("oTP").textContent = tp ?? "-";
+  $("oRisk").textContent = risk != null ? "$" + fx(risk) + (riskPct != null ? " (" + riskPct.toFixed(1) + "%)" : "") : "-";
+  $("oWin").textContent = risk != null && rr != null ? "$" + fx(risk * rr) : "-";
+  calcRes = Object.fromEntries(Object.entries({entry: e, atr: a, mult: m, rr, margin: mg, lev, sl, tp, dir: long ? "long" : "short", pair: pair === "__other" ? null : pair}).filter(([, v]) => v != null));
+}
+["cD","cE","cA","cM","cR","cL","cG"].forEach(k => $(k).addEventListener("input", calc));
+["cM","cR","cL"].forEach(k => $(k).addEventListener("change", save));
+$("cS").addEventListener("input", () => { const b = balance(); $("cG").value = b > 0 ? +(b * $("cS").value / 100).toFixed(2) : ""; calc(); });
+document.querySelector(".tk").addEventListener("click", e => { const v = e.target.dataset.v; if (v != null) { $("cS").value = v; $("cS").dispatchEvent(new Event("input")); } });
+$("cM").value = cfg.mult; $("cR").value = cfg.rr; $("cL").value = cfg.lev ?? 1;
+$("use").onclick = () => { $("cp").hidden = true; openForm(null, calcRes); };
+$("fab").onclick = () => { $("cp").hidden = !$("cp").hidden; if (!$("cp").hidden) $("cE").focus(); };
+$("cx").onclick = () => { $("cp").hidden = true; };
+$("pnl").addEventListener("click", e => { const b = e.target.closest("[data-n]"); if (b) { cfg.pr = +b.dataset.n; save(); render(); } });
+$("ch").addEventListener("pointerdown", e => {
+  if (e.target.closest("button")) return;
+  const cp = $("cp"), r = cp.getBoundingClientRect(), dx = e.clientX - r.left, dy = e.clientY - r.top;
+  const mv = ev => { cp.style.left = Math.max(0, Math.min(innerWidth - r.width, ev.clientX - dx)) + "px"; cp.style.top = Math.max(0, Math.min(innerHeight - 60, ev.clientY - dy)) + "px"; cp.style.right = cp.style.bottom = "auto"; };
+  const up = () => { removeEventListener("pointermove", mv); removeEventListener("pointerup", up); };
+  addEventListener("pointermove", mv); addEventListener("pointerup", up);
+});
+
+/* trade form */
+function auto() {
+  const e = num("entry"), a = num("atr"), m = num("mult"), rr = num("rr"), long = $("dir").value === "long";
+  if (e != null && a != null && m != null) {
+    const d = a * m;
+    $("sl").value = p(long ? e - d : e + d);
+    if (rr != null) $("tp").value = p(long ? e + rr * d : e - rr * d);
+  }
+}
+function openForm(t, pre) {
+  cur = t ? t.id : null;
+  const x = t || {date: ymd(new Date()), tf: "H1", dir: "long", pair: cfg.pair || FAVS[0], acct: Math.round(balance() * 100) / 100, lev: cfg.lev ?? 1, mult: cfg.mult, rr: cfg.rr, ...pre};
+  pairOpts(x.pair);
+  [...N, ...S].forEach(k => $(k).value = x[k] ?? "");
+  $("pair").dataset.prev = $("pair").value;
+  $("ttl").textContent = t ? "Edit trade" : "New trade";
+  $("del").hidden = !t;
+  $("dlg").showModal();
+}
+["entry","atr","mult","rr","dir"].forEach(k => $(k).addEventListener("input", auto));
+const pairOpts = (v, el = $("pair")) => {
+  const list = [...FAVS]; if (v && !list.includes(v)) list.push(v);
+  el.innerHTML = list.map(f => `<option>${esc(f)}</option>`).join("") + '<option value="__other">Other…</option>';
+  el.value = v || FAVS[0]; el.dataset.prev = el.value;
+};
+[$("pair"), $("cP")].forEach(el => el.addEventListener("change", () => {
+  if (el.value === "__other") {
+    const v = (prompt("Type the pair or asset (example: ETHUSDT)") || "").trim().toUpperCase();
+    if (v) pairOpts(v, el); else el.value = el.dataset.prev;
+  }
+  el.dataset.prev = el.value;
+  if (el.id === "cP") { calc(); save(); }
+}));
+$("new").onclick = () => openForm(null);
+$("xr").addEventListener("change", () => {
+  const v = $("xr").value, tp = num("tp"), sl = num("sl");
+  if (v === "Hit TP" && tp != null) $("exit").value = tp;
+  if (v === "Hit SL" && sl != null) $("exit").value = sl;
+});
+$("cancel").onclick = () => $("dlg").close();
+$("del").onclick = () => { if (confirm("Delete this trade? This cannot be undone.")) { trades = trades.filter(t => t.id !== cur); save(); $("dlg").close(); render(); } };
+$("f").addEventListener("submit", ev => {
+  ev.preventDefault();
+  const t = {...(trades.find(x => x.id === cur) || {}), id: cur || Date.now().toString(36)};
+  N.forEach(k => t[k] = num(k));
+  S.forEach(k => t[k] = $(k).value.trim());
+  t.pair = t.pair.toUpperCase(); cfg.pair = t.pair;
+  const i = trades.findIndex(x => x.id === t.id);
+  if (i < 0) trades.push(t); else trades[i] = t;
+  save(); $("dlg").close(); render();
+});
+
+/* page actions */
+const edit = e => { const el = e.target.closest("[data-id]"); if (el) openForm(trades.find(t => t.id === el.dataset.id)); };
+$("rows").addEventListener("click", edit);
+$("dayinfo").addEventListener("click", edit);
+$("cal").addEventListener("click", e => { const d = e.target.closest("[data-d]"); if (d) { sel = d.dataset.d; render(); } });
+$("dsw").onclick = () => { cfg.dm = cfg.dm === "all" ? "month" : "all"; save(); render(); };
+$("prev").onclick = () => { mon.setMonth(mon.getMonth() - 1); sel = null; render(); };
+$("next").onclick = () => { mon.setMonth(mon.getMonth() + 1); sel = null; render(); };
+$("bal").addEventListener("change", () => {
+  const v = num("bal");
+  if (v != null) { cfg.start = v - sum(known(trades)); save(); }
+  render();
+});
+
+function render() {
+  if (document.activeElement !== $("bal")) $("bal").value = balance().toFixed(2);
+  const end = new Date(); end.setHours(0, 0, 0, 0);
+  /* PNL tiles: Today, one switchable period (7D / 30D / 90D) and Lifetime. % = PNL / balance at the start of that period */
+  const stat = n => {
+    let lo = "", hi = "9999-12-31";
+    if (n) { const s0 = new Date(end); s0.setDate(end.getDate() - n + 1); lo = ymd(s0); hi = ymd(end); }
+    const per = known(trades.filter(t => (t.date || "") >= lo && (t.date || "") <= hi)), v = sum(per);
+    const b0 = cfg.start + sum(known(trades.filter(t => (t.date || "") < lo)));
+    return {per, v, pc: b0 > 0 ? v / b0 * 100 : null};
+  };
+  const pct = x => x == null ? "n/a" : (x > 0 ? "+" : x < 0 ? "-" : "") + Math.abs(x).toFixed(2) + "%";
+  const n = [7, 30, 90].includes(cfg.pr) ? cfg.pr : 30;
+  $("pnl").innerHTML = [
+    ["", '<div class="lb"><span>Today\'s PNL</span></div>', stat(1)],
+    ["pd", '<div class="lb"><div class="pk">' + [7, 30, 90].map(k => `<button data-n="${k}" class="${k === n ? "on" : ""}" aria-label="${k} day PNL">${k}D</button>`).join("") + "</div></div>", stat(n)],
+    ["lf", '<div class="lb"><span>Lifetime PNL</span></div>', stat(0)]
+  ].map(([c, lb, s]) => `<div class="${c}">${lb}<b class="${cls(s.v)}">${money(s.v)}</b><small class="${cls(s.v)}">${pct(s.pc)}</small></div>`).join("");
+  const ct = known(trades), ws = ct.filter(x => x > 0), ls = ct.filter(x => x < 0);
+  const aw = ws.length ? sum(ws) / ws.length : null, al = ls.length ? sum(ls) / ls.length : null;
+  $("fr").innerHTML = ct.length ? `<i class="win">${aw == null ? "n/a" : money(aw)}</i> / <i class="loss">${al == null ? "n/a" : money(al)}</i>` : "n/a";
+  $("fn").textContent = aw != null && al != null ? "Ratio " + (aw / Math.abs(al)).toFixed(1) + " to 1, all closed trades" : "Needs at least one win and one loss";
+
+  const y = mon.getFullYear(), m0 = mon.getMonth(), pre = y + "-" + pad(m0 + 1) + "-";
+  const cl = trades.filter(t => t.date && t.date.startsWith(pre) && pnlOf(t) != null);
+  const by = {};
+  cl.forEach(t => { by[t.date] = by[t.date] || {net: 0, t: []}; by[t.date].net += pnlOf(t); by[t.date].t.push(t); });
+  const pn = cl.map(pnlOf), net = sum(pn);
+  $("mt").innerHTML = mon.toLocaleString(undefined, {month: "long", year: "numeric"}) + ' <small class="' + cls(pn.length ? net : null) + '">' + (pn.length ? money(net) : "") + "</small>";
+
+  const all = cfg.dm === "all", dp = (all ? trades.filter(t => pnlOf(t) != null) : cl).map(pnlOf);
+  const wins = dp.filter(v => v > 0).length, loss = dp.filter(v => v < 0).length, even = dp.length - wins - loss, tot = dp.length || 1;
+  const seg = [[wins, "var(--win)", "Wins: " + wins], [loss, "var(--loss)", "Losses: " + loss], [even, "var(--mute)", "Breakeven: " + even]];
+  const center = dp.length ? Math.round(wins / tot * 100) + "%" : "n/a";
+  $("dt").textContent = "Win rate, " + (all ? "all time" : mon.toLocaleString(undefined, {month: "long"}));
+  let acc = 0, arcs = "";
+  seg.forEach(([n, col]) => { if (n) { const w = n / tot * 100; arcs += `<circle cx="21" cy="21" r="15.9155" fill="none" stroke="${col}" stroke-width="5" stroke-dasharray="${w} ${100 - w}" stroke-dashoffset="${25 - acc}"/>`; acc += w; } });
+  $("donut").innerHTML = `<svg viewBox="0 0 42 42" role="img" aria-label="Wins, losses and breakeven"><circle cx="21" cy="21" r="15.9155" fill="none" stroke="var(--none)" stroke-width="5"/>${arcs}<text x="21" y="21.5" text-anchor="middle" font-size="7" font-weight="700" fill="var(--ink)" font-family="Bricolage Grotesque,system-ui,sans-serif">${center}</text><text x="21" y="26.5" text-anchor="middle" font-size="3" fill="var(--mute)">${dp.length ? "win rate" : ""}</text></svg><div class="leg">${dp.length ? seg.map(([n, col, l]) => `<span><i style="background:${col}"></i>${esc(l)}</span>`).join("") : (all ? "No closed trades yet." : "No closed trades this month.")}</div>`;
+
+  let h = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d => `<em>${d}</em>`).join("") + "<span></span>".repeat((mon.getDay() + 6) % 7);
+  for (let i = 1, dim = new Date(y, m0 + 1, 0).getDate(); i <= dim; i++) {
+    const k = pre + pad(i), x = by[k], c = !x ? "" : x.net > 0 ? "g" : x.net < 0 ? "r" : "z";
+    h += `<button class="day ${c}${k === sel ? " sel" : ""}" data-d="${k}" aria-label="${k}"><span>${i}</span>${x ? `<b>${short(x.net)}</b>` : ""}</button>`;
+  }
+  $("cal").innerHTML = h;
+  const dd = sel && by[sel];
+  $("dayinfo").innerHTML = dd ? `<strong>${sel}: ${money(dd.net)}</strong><br>` + dd.t.map(t => `<button data-id="${esc(t.id)}"><span class="${cls(pnlOf(t))}">${esc(t.pair)} ${esc(t.dir)} ${money(pnlOf(t))}</span></button>`).join("") : sel ? "No closed trades on " + sel + "." : "Select a day to see its trades.";
+
+  $("rows").innerHTML = [...trades].sort((x, y) => (y.date || "").localeCompare(x.date || "")).map(t => {
+    const v = pnlOf(t);
+    return `<tr data-id="${esc(t.id)}"><td>${esc(t.date)}</td><td>${esc(t.pair)} <small>${esc(t.tf)}</small></td><td class="${t.dir === "long" ? "win" : "loss"}">${esc(t.dir)}</td><td>${esc(t.entry)}</td><td>${esc(t.sl)}</td><td>${esc(t.tp ?? "")}</td><td>${esc(t.exit ?? "")}</td><td class="${cls(v)}">${v == null ? "<small>Open</small>" : (t.pnl == null ? "~" : "") + money(v)}</td><td class="why">${esc(t.reason)}</td></tr>`;
+  }).join("") || '<tr><td colspan="9" class="empty">No trades yet. Select New trade, or use the calculator and Log this trade.</td></tr>';
+  const L = ["Date","Pair","Side","Entry","SL","TP","Exit","P&L","Reason"];
+  document.querySelectorAll("#rows tr[data-id]").forEach(tr => [...tr.children].forEach((td, i) => td.dataset.l = L[i]));
+}
+
+/* backup */
+$("exp").onclick = () => {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify({trades, cfg}, null, 1)], {type: "application/json"}));
+  a.download = "trade-journal.json"; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+$("imp").onclick = () => $("file").click();
+$("file").onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      const d = JSON.parse(rd.result), arr = Array.isArray(d) ? d : d.trades;
+      if (!Array.isArray(arr)) throw new Error("bad file");
+      if (confirm("Replace your current journal with " + arr.length + " imported trades?")) { trades = arr; if (d.cfg) Object.assign(cfg, d.cfg); save(); render(); }
+    } catch (err) { alert("That file is not a valid journal export. Choose a JSON file exported from this page."); }
+    e.target.value = "";
+  };
+  rd.readAsText(f);
+};
+document.querySelectorAll("input[type=number]:not(#pnl)").forEach(i => i.inputMode = "decimal");
+pairOpts(cfg.cp, $("cP"));
+calc(); render();
+</script>
+</body>
+</html>
